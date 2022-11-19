@@ -1,0 +1,13 @@
+[
+    {
+        "arguments": [
+            "cc",
+            "-c",
+            "-o",
+            "hello_drv.o",
+            "hello_drv.c"
+        ],
+        "directory": "/home/zyb/Desktop/vscode-ws/drivercenter/basic_notes/1 hello_drv",
+        "file": "hello_drv.c"
+    }
+]
