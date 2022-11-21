@@ -1,1 +1,0 @@
-cmd_/home/zyb/Desktop/vscode-ws/drivercenter/getting_starter/01_hello_drv/built-in.o :=  rm -f /home/zyb/Desktop/vscode-ws/drivercenter/getting_starter/01_hello_drv/built-in.o; arm-buildroot-linux-gnueabihf-ar rcsD /home/zyb/Desktop/vscode-ws/drivercenter/getting_starter/01_hello_drv/built-in.o
