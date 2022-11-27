@@ -1,12 +1,12 @@
 [
     {
         "arguments": [
-            "arm-buildroot-linux-gnueabihf-gcc",
+            "cc",
             "-c",
-            "-Wp,-MD,/home/zyb/Desktop/vscode-ws/drivercenter/getting_starter/01_hello_drv/.hello_drv.o.d",
+            "-Wp,-MD,/home/zyb/Desktop/vscode-ws/drivercenter/getting_starter/02_hello_drv_transfer_data/.hello_drv_transfer_data.mod.o.d",
             "-nostdinc",
             "-isystem",
-            "/home/zyb/tools/arm-buildroot-linux-gnueabihf_sdk-buildroot/bin/../lib/garm-buildroot-linux-gnueabihf-gcc/arm-buildroot-linux-gnueabihf/7.5.0/include",
+            "/home/zyb/tools/arm-buildroot-linux-gnueabihf_sdk-buildroot/bin/../lib/gcc/arm-buildroot-linux-gnueabihf/7.5.0/include",
             "-I./arch/arm/include",
             "-I./arch/arm/include/generated/uapi",
             "-I./arch/arm/include/generated",
@@ -49,7 +49,7 @@
             "-Wno-int-in-bool-context",
             "-O2",
             "--param=allow-store-data-races=0",
-            "-Darm-buildroot-linux-gnueabihf-gcc_HAVE_ASM_GOTO",
+            "-DCC_HAVE_ASM_GOTO",
             "-Wframe-larger-than=1024",
             "-fno-stack-protector",
             "-Wno-unused-but-set-variable",
@@ -67,35 +67,35 @@
             "-Werror=strict-prototypes",
             "-Werror=date-time",
             "-Werror=incompatible-pointer-types",
+            "-DKBUILD_BASENAME=\"hello_drv_transfer_data.mod\"",
+            "-DKBUILD_MODNAME=\"hello_drv_transfer_data\"",
             "-DMODULE",
-            "-DKBUILD_BASENAME=\"hello_drv\"",
-            "-DKBUILD_MODNAME=\"hello_drv\"",
             "-o",
-            "/home/zyb/Desktop/vscode-ws/drivercenter/getting_starter/01_hello_drv/.tmp_hello_drv.o",
-            "../drivercenter/getting_starter/01_hello_drv/hello_drv.c"
+            "/home/zyb/Desktop/vscode-ws/drivercenter/getting_starter/02_hello_drv_transfer_data/hello_drv_transfer_data.mod.o",
+            "../drivercenter/getting_starter/02_hello_drv_transfer_data/hello_drv_transfer_data.mod.c"
         ],
         "directory": "/home/zyb/Desktop/vscode-ws/Linux-4.9.88",
-        "file": "../drivercenter/getting_starter/01_hello_drv/hello_drv.c"
+        "file": "../drivercenter/getting_starter/02_hello_drv_transfer_data/hello_drv_transfer_data.mod.c"
     },
     {
         "arguments": [
-            "arm-buildroot-linux-gnueabihf-gcc",
+            "cc",
             "-c",
             "-o",
             "hello_test",
             "hello_test.c"
         ],
-        "directory": "/home/zyb/Desktop/vscode-ws/drivercenter/getting_starter/01_hello_drv",
+        "directory": "/home/zyb/Desktop/vscode-ws/drivercenter/getting_starter/02_hello_drv_transfer_data",
         "file": "hello_test.c"
     },
     {
         "arguments": [
-            "arm-buildroot-linux-gnueabihf-gcc",
+            "cc",
             "-c",
-            "-Wp,-MD,/home/zyb/Desktop/vscode-ws/drivercenter/getting_starter/01_hello_drv/.hello_drv.mod.o.d",
+            "-Wp,-MD,/home/zyb/Desktop/vscode-ws/drivercenter/getting_starter/02_hello_drv_transfer_data/.hello_drv_transfer_data.o.d",
             "-nostdinc",
             "-isystem",
-            "/home/zyb/tools/arm-buildroot-linux-gnueabihf_sdk-buildroot/bin/../lib/garm-buildroot-linux-gnueabihf-gcc/arm-buildroot-linux-gnueabihf/7.5.0/include",
+            "/home/zyb/tools/arm-buildroot-linux-gnueabihf_sdk-buildroot/bin/../lib/gcc/arm-buildroot-linux-gnueabihf/7.5.0/include",
             "-I./arch/arm/include",
             "-I./arch/arm/include/generated/uapi",
             "-I./arch/arm/include/generated",
@@ -138,7 +138,7 @@
             "-Wno-int-in-bool-context",
             "-O2",
             "--param=allow-store-data-races=0",
-            "-Darm-buildroot-linux-gnueabihf-gcc_HAVE_ASM_GOTO",
+            "-DCC_HAVE_ASM_GOTO",
             "-Wframe-larger-than=1024",
             "-fno-stack-protector",
             "-Wno-unused-but-set-variable",
@@ -156,14 +156,14 @@
             "-Werror=strict-prototypes",
             "-Werror=date-time",
             "-Werror=incompatible-pointer-types",
-            "-DKBUILD_BASENAME=\"hello_drv.mod\"",
-            "-DKBUILD_MODNAME=\"hello_drv\"",
             "-DMODULE",
+            "-DKBUILD_BASENAME=\"hello_drv_transfer_data\"",
+            "-DKBUILD_MODNAME=\"hello_drv_transfer_data\"",
             "-o",
-            "/home/zyb/Desktop/vscode-ws/drivercenter/getting_starter/01_hello_drv/hello_drv.mod.o",
-            "../drivercenter/getting_starter/01_hello_drv/hello_drv.mod.c"
+            "/home/zyb/Desktop/vscode-ws/drivercenter/getting_starter/02_hello_drv_transfer_data/.tmp_hello_drv_transfer_data.o",
+            "../drivercenter/getting_starter/02_hello_drv_transfer_data/hello_drv_transfer_data.c"
         ],
         "directory": "/home/zyb/Desktop/vscode-ws/Linux-4.9.88",
-        "file": "../drivercenter/getting_starter/01_hello_drv/hello_drv.mod.c"
+        "file": "../drivercenter/getting_starter/02_hello_drv_transfer_data/hello_drv_transfer_data.c"
     }
 ]
