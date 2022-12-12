@@ -3,6 +3,17 @@
         "arguments": [
             "arm-buildroot-linux-gnueabihf-gcc",
             "-c",
+            "-o",
+            "hello_test",
+            "hello_test.c"
+        ],
+        "directory": "/home/zyb/Desktop/vscode-ws/drivercenter/getting_starter/03_hello_drv_cdev",
+        "file": "hello_test.c"
+    },
+    {
+        "arguments": [
+            "arm-buildroot-linux-gnueabihf-gcc",
+            "-c",
             "-Wp,-MD,/home/zyb/Desktop/vscode-ws/drivercenter/getting_starter/03_hello_drv_cdev/.hello_drv_cdev.o.d",
             "-nostdinc",
             "-isystem",
@@ -154,16 +165,5 @@
         ],
         "directory": "/home/zyb/Desktop/vscode-ws/Linux-4.9.88",
         "file": "../drivercenter/getting_starter/03_hello_drv_cdev/hello_drv_cdev.mod.c"
-    },
-    {
-        "arguments": [
-            "arm-buildroot-linux-gnueabihf-gcc",
-            "-c",
-            "-o",
-            "hello_test",
-            "hello_test.c"
-        ],
-        "directory": "/home/zyb/Desktop/vscode-ws/drivercenter/getting_starter/03_hello_drv_cdev",
-        "file": "hello_test.c"
     }
 ]
