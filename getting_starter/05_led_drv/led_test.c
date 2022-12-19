@@ -1,67 +1,59 @@
 
-#include <sys/types.h>
-#include <sys/stat.h>
+#include <elf.h>
 #include <fcntl.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <string.h>
 #include <poll.h>
 #include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 static int fd;
 
 /*
- * ./button_test /dev/100ask_button0
- *
+ * ./led_test  <0|1|2> on        // 点灯
+ * ./led_test  <0|1|2> off       // 熄灯
+ * ./led_test  <0|1|2>           // 读取灯的状态
  */
-int main(int argc, char **argv)
-{
-	int val;
-	struct pollfd fds[1];
-	int timeout_ms = 5000;
-	int ret;
-	int	flags;
+int main(int argc, char **argv) {
+  int ret;
+  int usr_buf[2];
 
-	int i;
-	
-	/* 1. 判断参数 */
-	if (argc != 2) 
-	{
-		printf("Usage: %s <dev>\n", argv[0]);
-		return -1;
-	}
+  /* 1. 判断参数 */
+  if (argc < 2) {
+    printf("Usage: %s <0|1|2> [on|off]\n", argv[0]);
+    return -1;
+  }
 
+  /* 2. 打开文件（设备节点） */
+  fd = open("/dev/led_dev", O_RDWR);
+  if (fd == -1) {
+    printf("can not open file /dev/led_dev.\n");
+    return -1;
+  }
 
-	/* 2. 打开文件 */
-	fd = open(argv[1], O_RDWR | O_NONBLOCK);
-	if (fd == -1)
-	{
-		printf("can not open file %s\n", argv[1]);
-		return -1;
-	}
+  // 写数据，点灯
+  if (argc == 3) {
+    usr_buf[0] = strtol(argv[1], NULL, 0);
 
-	for (i = 0; i < 10; i++) 
-	{
-		if (read(fd, &val, 4) == 4)
-			printf("get button: 0x%x\n", val);
-		else
-			printf("get button: -1\n");
-	}
+    if (strcmp(argv[2], "on") == 0) {
+      usr_buf[1] = 0;
+    } else {
+      usr_buf[1] = 1;
+    }
+    ret = write(fd, usr_buf, 2);
+  } else {
+    usr_buf[0] = strtol(argv[1], NULL, 0);
+    ret = read(fd, usr_buf, 2);
 
-	flags = fcntl(fd, F_GETFL);
-	fcntl(fd, F_SETFL, flags & ~O_NONBLOCK);
+    if (ret == 2) {
+      printf("%s is %s!\n", argv[1], usr_buf[1] == 0 ? "on" : "off");
+    }
+  }
 
-	while (1)
-	{
-		if (read(fd, &val, 4) == 4)
-			printf("get button: 0x%x\n", val);
-		else
-			printf("while get button: -1\n");
-	}
-	
-	close(fd);
-	
-	return 0;
+  close(fd);
+
+  return 0;
 }
-
-

@@ -58,14 +58,13 @@ static struct gpio_desc gpios[2] = {
 /* 环形缓冲区 */
 #define BUF_LEN 128
 static int g_keys[BUF_LEN];
-static int r, w;    // 环形缓冲区标识位：全局变量
+static int r, w; // 环形缓冲区标识位：全局变量
 
-#define NEXT_POS(x) ((x + 1) % BUF_LEN)  // 环形缓冲区标识为移动操作（取模操作，巧妙）
+#define NEXT_POS(x)                                                            \
+  ((x + 1) % BUF_LEN) // 环形缓冲区标识为移动操作（取模操作，巧妙）
 
 /* 判断环形缓冲区是否为空 */
-static int is_key_buf_empty(void) {
-  return (r == w);
-}
+static int is_key_buf_empty(void) { return (r == w); }
 
 /* 判断环形缓冲区是否满了 */
 static int is_key_buf_full(void) { return (r == NEXT_POS(w)); }
@@ -91,7 +90,13 @@ static int get_key(void) {
 /* 创建一个等待队列 */
 static DECLARE_WAIT_QUEUE_HEAD(gpio_wait);
 
-/* 计时器相关处理，在中间获取按键值，并通过按键值判断高低电平状态，并最终判断按键是按下还是弹出
+/*
+ * 定时器超时函数，调用此函数说明数据稳定，抖动已被消除：
+ *  1：参数解析并转换
+ *  2：或取按键值并作逻辑判断
+ *  3：如果应用程序来不及读取（卡死了），放入环形缓冲区供后续操作
+ *  4：如果有其他东西在等待按键的时候，就需要到等待队列中将其唤醒
+ *  5：如果是异步通知的话，需要将信号发给某个进程
  */
 static void key_timer_expire(unsigned long data) {
   /* data ==> gpio */
@@ -240,9 +245,18 @@ static int __init gpio_init(void) {
 
 /* 4.出口函数注销fops结构体 */
 static void __exit gpio_exit(void) {
+
+  int i;
+  int count = sizeof(gpios) / sizeof(gpios[0]); // 获取操作引脚个数
+
   device_destroy(gpio_class, MKDEV(major, 0));
   class_destroy(gpio_class);
   unregister_chrdev(major, "gpio_drv_cdev");
+
+  for (i = 0; i < count; i++) {
+    free_irq(gpios[i].irq, &gpios[i]);
+    del_timer(&gpios[i].key_timer);
+  }
 }
 
 /* 5.其它信息 */
