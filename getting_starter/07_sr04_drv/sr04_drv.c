@@ -98,34 +98,36 @@ static DECLARE_WAIT_QUEUE_HEAD(gpio_wait);
 /* 中断处理函数 */
 static irqreturn_t gpio_sr04_isr(int irq, void *dev_id) {
   struct gpio_desc *gpio_desc = (struct gpio_desc *)dev_id;
-  int val; // 记录按键值
-  u64 start_time = 0;
-  u64 end_time = 0;
-  static u64 time = 0;
+  int val;                    // 记录按键值
+  static u64 rising_time = 0; // 上升沿时间
+  static u64 time = 0;        // 有效时间
 
   val = gpio_get_value(gpio_desc->gpio);
 
   if (val) {
     // 上升沿记录起始时间
-    start_time = ktime_get_ns();
+    rising_time = ktime_get_ns();
 
   } else {
+
+    if (rising_time == 0) {
+      return IRQ_HANDLED;
+    }
+
     // 下降沿记录结束时间，并计算时间差和距离
-    end_time = ktime_get_ns();
+    time = ktime_get_ns() - rising_time;
+
+    // 将距离写入环境缓冲区
+    put_value(time);
+
+    // 如果有人在等待这个数据就唤醒它
+    wake_up_interruptible(
+        &gpio_wait); // 如果有其他东西在等待按键的时候，就需要到等待队列中将其唤醒
+
+    // 如过有人需要等待信号做处理那就发信号
+    kill_fasync(&button_fasync, SIGIO,
+                POLL_IN); // 如果是异步通知的话，需要将信号发给某个进程
   }
-
-  time = start_time - end_time;
-
-  // 将距离写入环境缓冲区
-  put_value(time);
-
-  // 如果有人在等待这个数据就唤醒它
-  wake_up_interruptible(
-      &gpio_wait); // 如果有其他东西在等待按键的时候，就需要到等待队列中将其唤醒
-
-  // 如过有人需要等待信号做处理那就发信号
-  kill_fasync(&button_fasync, SIGIO,
-              POLL_IN); // 如果是异步通知的话，需要将信号发给某个进程
 
   return IRQ_HANDLED;
 }
@@ -149,7 +151,7 @@ static ssize_t sr04_read(struct file *file, char __user *buf, size_t size,
   key = get_value();
   err = copy_to_user(buf, &key, 4);
 
-  return err;
+  return 4;
 }
 /*
  * 异步通知
@@ -196,26 +198,23 @@ static struct file_operations sr04_ops = {
 /* 3.入口函数注册file_operations结构体 */
 static int __init sr04_init(void) {
 
-  int i;
   int err;
-  int count = sizeof(gpios) / sizeof(gpios[0]); // 获取操作引脚个数
 
-  // 请求GPIO资源
-  for (i = 0; i < count; i++) {
-    gpio_request(gpios[i].gpio, gpios[i].name);
-  }
+  // trig pin
+  gpio_request(gpios[0].gpio,
+               gpios[0].name); // 请求gpio资源，免得被其它中断占用
+  gpio_direction_output(gpios[0].gpio,
+                        0); // 初始化trig引脚，配置为输出并且平时状态为低电平
 
-  // 初始化trig引脚，配置为输出并且平时状态为低电平
-  gpio_direction_output(gpios[0].gpio, 0);
-
-  // 初始化echo引脚，接收超声波，注册中断，接收中断
+  // trig echo，接收超声波，注册中断，接收中断
   gpios[1].irq = gpio_to_irq(gpios[1].gpio); // 将gpio引脚转换为对应的中断号
   err = request_irq(gpios[1].irq, gpio_sr04_isr,
                     IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING, "gpio_sr04_isr",
                     &gpios[1]);
 
+  // 三板斧之1：注册字符设备
   major = register_chrdev(0, "sr04_drv_cdev", &sr04_ops);
-  /* 创建class */
+  // 三板斧之2：创建class
   sr04_class = class_create(THIS_MODULE, "sr04_class");
   if (IS_ERR(sr04_class)) {
     pr_warn("Unable to create backlight class; errno = %ld\n",
@@ -223,7 +222,7 @@ static int __init sr04_init(void) {
     return PTR_ERR(sr04_class);
   }
 
-  /* 创建device */
+  // 三板斧之3：创建device
   device_create(sr04_class, NULL, MKDEV(major, 0), NULL, "sr04_device");
 
   return err;
@@ -232,18 +231,14 @@ static int __init sr04_init(void) {
 /* 4.出口函数注销fops结构体 */
 static void __exit sr04_exit(void) {
 
-  int i;
-  int count = sizeof(gpios) / sizeof(gpios[0]); // 获取操作引脚个数
-
   device_destroy(sr04_class, MKDEV(major, 0));
   class_destroy(sr04_class);
   unregister_chrdev(major, "sr04_drv_cdev");
 
-  for (i = 0; i < count; i++) {
-    gpio_free(gpios[i].gpio);
-  }
+  // trig pin free：释放信号引脚
+  gpio_free(gpios[0].gpio);
 
-  // 释放中断
+  // echo pin free：释放中断
   free_irq(gpios[1].gpio, &gpios[1]);
 }
 

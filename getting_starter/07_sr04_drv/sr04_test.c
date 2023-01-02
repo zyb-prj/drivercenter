@@ -43,11 +43,15 @@ int main(int argc, char **argv) {
 
     // 调用ioctl函数发出trig信号
     ioctl(fd, CMD_TRIG);
+    printf("I am goning to read distance: \n");
 
-    if (read(fd, &val, 4))
+    if (read(fd, &val, 4)) {
       printf("get distance: %d cm\n", val * 17 / 1000000);
-    else
-      printf("get distance: -1\n");
+    } else {
+      printf("get distance err!\n");
+    }
+
+    sleep(1);
   }
 
   close(fd);
